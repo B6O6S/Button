@@ -1,21 +1,22 @@
--- Create or find the ScreenGui
-local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+-- Variables for storing GUI state
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 local screenGui = playerGui:FindFirstChild("MyScreenGui")
 
+-- Create the ScreenGui if it doesn't exist
 if not screenGui then
     screenGui = Instance.new("ScreenGui")
     screenGui.Name = "MyScreenGui"
     screenGui.Parent = playerGui
 end
 
--- Create or find the ImageButton
+-- Create the ImageButton if it doesn't exist
 local button = screenGui:FindFirstChild("MyButton")
 
 if not button then
     button = Instance.new("ImageButton")
     button.Name = "MyButton"
     button.Size = UDim2.new(0, 40, 0, 40) -- Slightly smaller size (40x40 pixels)
-    button.Position = UDim2.new(0.5, -20, 0.5, -20) -- Centered, adjusted for smaller size
     button.BackgroundTransparency = 1 -- Make the background transparent
     button.Image = "rbxassetid://18610263913" -- Your decal ID
 
@@ -30,7 +31,28 @@ end
 -- Create a Sound instance
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://4499400560" -- Your sound asset ID
+sound.Volume = 1 -- Adjust volume (1 is full volume)
+sound.Looped = false -- Set to true if you want the sound to loop
 sound.Parent = button
+
+-- Function to save and load button position
+local function saveButtonPosition()
+    local buttonPosition = button.Position
+    player:SetAttribute("ButtonPosition", buttonPosition)
+end
+
+local function loadButtonPosition()
+    local savedPosition = player:GetAttribute("ButtonPosition")
+    if savedPosition then
+        button.Position = savedPosition
+    else
+        -- Default position if no saved position
+        button.Position = UDim2.new(0.5, -20, 0.5, -20)
+    end
+end
+
+-- Load the button position when the GUI is first created
+loadButtonPosition()
 
 -- Make the button draggable
 local dragging = false
@@ -52,6 +74,7 @@ end
 
 local function onDragEnd()
     dragging = false
+    saveButtonPosition() -- Save the position when dragging ends
 end
 
 -- Handle mouse and touch input for dragging
@@ -77,7 +100,6 @@ end)
 local function onButtonClick()
     getgenv().keytoclick = "K"
 
-    local player = game.Players.LocalPlayer
     local vim = game:GetService("VirtualInputManager")
 
     local keyPressed = false  -- Flag to control key press
